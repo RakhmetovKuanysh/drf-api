@@ -12,16 +12,16 @@ from .serializers import *
 
 @api_view(['GET', 'POST'])
 @csrf_exempt
-def todo_list(request):
+def contacts_list(request):
     try:
         if request.method == "GET":
-            tasks = Task.objects.filter(is_active=True)
-            ser = TaskSerializer(tasks, many=True)
+            contacts = Contact.objects.filter(is_active=True)
+            ser = ContactSerializer(contacts, many=True)
             return Response(ser.data, status=status.HTTP_200_OK)
 
         elif request.method == "POST":
             data = JSONParser().parse(request)
-            ser = TaskSerializer(data=data)
+            ser = ContactSerializer(data=data)
 
             if ser.is_valid():
                 ser.save()
@@ -33,35 +33,35 @@ def todo_list(request):
 
 @api_view(['GET', 'PUT', 'DELETE'])
 @csrf_exempt
-def todo_detail(request, task_id):
+def contact_detail(request, contact_id):
     try:
         try:
-            task = Task.objects.get(pk=task_id, is_active=True)
+            contact = Contact.objects.get(pk=contact_id, is_active=True)
         except Exception as e:
             return Response({}, status=status.HTTP_404_NOT_FOUND)
 
         if request.method == "GET":
-            ser = TaskSerializer(task)
+            ser = ContactSerializer(contact)
             return Response(ser.data, status=status.HTTP_200_OK)
 
         elif request.method == "PUT":
             data = JSONParser().parse(request)
-            ser = TaskSerializer(task, data=data)
+            ser = ContactSerializer(contact, data=data)
 
             if ser.is_valid():
                 ser.save()
-                return JsonResponse(ser.data, status=200)
-            return JsonResponse(ser.errors, status=400)
+                return Response(ser.data, status=status.HTTP_200_OK)
+            return Response(ser.errors, status=status.HTTP_400_BAD_REQUEST)
 
         elif request.method == "DELETE":
             data = {
                 "is_active": False,
             }
-            ser = TaskSerializer(task, data=data)
+            ser = ContactSerializer(contact, data=data)
 
             if ser.is_valid():
                 ser.save()
-                return JsonResponse(ser.data, status=200)
-            return JsonResponse(ser.errors, status=400)
+                return Response(ser.data, status=status.HTTP_200_OK)
+            return Response(ser.errors, status=status.HTTP_400_BAD_REQUEST)
     except Exception as e:
         return Response(str(e), status=status.HTTP_400_BAD_REQUEST)
